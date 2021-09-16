@@ -1,0 +1,1 @@
+cxfreeze -c server.py --target-dir dist --icon favicon.ico
