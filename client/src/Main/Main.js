@@ -17,6 +17,7 @@ import AddProject from '../AddProject/AddProject';
 import EditProject from '../EditProject/EditProject';
 import Timesheets from '../Timesheets/Timesheets';
 import CreateSheet from '../CreateSheet/CreateSheet';
+import ViewTimeSheet from '../ViewTimeSheet/ViewTimeSheet';
 
 export default class Main extends Component {
     constructor(props) {
@@ -66,6 +67,9 @@ export default class Main extends Component {
                             <Route exact path="/timesheets" 
                                 render={(props) => (<Timesheets isAdmin={this.state.isAdmin} />)}
                             />
+
+                            <Route path="/timesheet/:sid" component={ViewTimeSheet} />
+
                             <Route path="/createSheet" component={CreateSheet} />                            
                             {this.state.isAdmin ?
                                 <>

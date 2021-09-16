@@ -24,6 +24,10 @@ export default class Timesheets extends Component {
         window.location.hash = "#/"
     }
 
+    _switchToViewScreen(event,row){
+        window.location.hash = "#/timesheet/"+row.id;
+    }
+
     getSheets(){
         let API = SERVER + '/getTimesheets' ;
         var formData = new FormData();
@@ -74,6 +78,9 @@ export default class Timesheets extends Component {
                                 actionTypes={["edit","view"]}
                                 onRowEdit = {(event, row) => { 
                                     this._switchToEditScreen(event,row)
+                                }} 
+                                onRowView = {(event, row) => { 
+                                    this._switchToViewScreen(event,row)
                                 }} 
                                 headerStyle={{background:'#4a77d4',textShadow: "0 -1px 0 rgba(0, 0, 0, 0.25)", color: "#ffffff"}}
                             />

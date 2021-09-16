@@ -167,8 +167,7 @@ export default class CreateSheet extends Component {
                                             value={task.pid}
                                             onChange={this._handleTaskChange.bind(this, task.id)}
                                         >
-                                            <option value={""} disabled> Project </option>
-                                            <option value={0}> Other </option>
+                                            <option value={""} disabled> Project </option>                                            
                                             {this.state.projects.length ?
                                                 this.state.projects.map((project, index_2) => (
                                                     <option key={index_2} value={project.id}>{project.name}</option>
@@ -228,7 +227,7 @@ export default class CreateSheet extends Component {
 
     render() {
         return (
-            <div className="Users">
+            <div className="Timesheet">
                 {this.TopBar()}
                 {this.SheetView()}
                 <Toaster toastOptions={{className: 'Toast_Class'}}/>
