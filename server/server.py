@@ -254,7 +254,10 @@ def get_timesheets():
     if(Auth):        
         if(verifyToken(Auth)["verified"]):
             Page = request.forms.get('page', None) 
-            Page = (int(Page)-1)*30                                              
+            Page = (int(Page)-1)*30
+            User_id_condition = ''' '''
+            if verifyToken(Auth)["uid"] is not None and verifyToken(Auth)["uid"]>0:
+                User_id_condition = " AND S.uid = " +  str(verifyToken(Auth)["uid"])  + " "                   
             sql = '''
                         SELECT 
                             S.id as id,
@@ -268,13 +271,15 @@ def get_timesheets():
                             U.id = S.uid
                         AND
                             T.sid = S.id 
+                        ''' + User_id_condition + '''    
                         GROUP BY 
                             S.id , S.date   
                         ORDER BY
                             S.date DESC 
                         LIMIT   30 
-                        OFFSET %s                 
-                    '''         
+                        OFFSET %s  
+                    '''               
+                     
             result = fetch(sql,(Page,))         
             result = toJson(result,["id","employee","date","total_tasks","total_hours"])             
             return json.dumps({"success":"1", "data":result})
@@ -352,6 +357,44 @@ def new_sheet():
     else:
         return {"success":"0", "msg":"Authorization Failed"}
 
+@route('/getTimesheet', method=['OPTIONS','POST'])  
+def get_timesheet():
+    handlingHeaders()
+    Auth = request.headers.get("Authorization")
+    if(Auth):        
+        if(verifyToken(Auth)["verified"]):
+            User_id_condition = ''' '''
+            if verifyToken(Auth)["uid"] is not None and verifyToken(Auth)["uid"]>0:
+                User_id_condition = " AND S.uid = " +  str(verifyToken(Auth)["uid"])  + " "  
+            Sid  = request.forms.get('sid', None)
+            sql = '''
+                        SELECT 
+                            S.date, 
+                            U.name AS employee, 
+                            T.name AS task, 
+                            T.comment, 
+                            T.hours, 
+                            T.status, 
+                            P.name AS project
+                        FROM 
+                        sheet AS S, users AS U, task AS T, projects AS P
+                        WHERE
+                            S.uid = U.id
+                        AND
+                            T.sid = S.id
+                        AND
+                            P.id = T.pid
+                        ''' + User_id_condition +'''
+                        AND 
+                            S.id = %s
+                 '''     
+            result = fetch(sql,(Sid,))    
+            result = toJson(result,["date","employee","task","comment","hours","status", "project"])             
+            return json.dumps({"success":"1", "data":result})
+        else:
+            return {"success":"0", "msg":"Authorization Failed"}
+    else:
+        return {"success":"0", "msg":"Authorization Failed"} 
 
 #-------------Helper Functions ----------------#
 def verifyToken(token):    
@@ -359,11 +402,11 @@ def verifyToken(token):
     result = fetch(sql,(token,))    
     result = toJson(result,["id","uid","token"])     
     if len(result) > 0 and result[0]['uid'] == 0:
-        return({"verified":True, "isAdmin":True})
+        return({"verified":True, "isAdmin":True, "uid": result[0]['uid']})
     elif len(result)>0:
-        return({"verified":True, "isAdmin":False})  
+        return({"verified":True, "isAdmin":False, "uid": result[0]['uid']})  
     else :
-        return({"verified":False, "isAdmin":False})       
+        return({"verified":False, "isAdmin":False, "uid": None})       
 
 def toJson(result,keys):
     objects_list = []
