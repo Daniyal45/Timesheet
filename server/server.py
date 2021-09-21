@@ -515,7 +515,7 @@ def generate_report():
                         S.uid = U.id
                         AND
                         T.pid = P.id
-                ''' + Filters + "  SORT BY S.date, U.id" 
+                ''' + Filters + "  ORDER BY S.date, U.id" 
             result = fetch(sql,())    
             result = toJson(result,["Date","Project","Employee","Task","Hours"])                             
             report = get_xlsx(result)
