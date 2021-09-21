@@ -108,7 +108,7 @@ export default class CreateSheet extends Component {
         })
             .then(res => res.json()).then(response => {
                 if (parseInt(response.success)) {
-                    toast.success("Sheet created successfully");
+                    toast.success("Sheet submitted successfully");
                 }
                 else {
                     toast.error(response.msg);

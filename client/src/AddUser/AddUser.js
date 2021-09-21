@@ -101,13 +101,17 @@ export default class AddUser extends Component {
                             placeholder="User contact..."
                             value={this.state.contact}
                         />
-                        <input
+                        <select
                             id="designation"
                             onChange={e => this.handleInput(e)}
                             name="designation"
                             placeholder="Designation"
                             value={this.state.designation}
-                        />
+                        >
+                            <option value="" disabled> Designation </option>
+                            <option value="manager"> Manager </option>
+                            <option value="employee"> Employee </option>
+                        </select>
                         <input
                             id="password"
                             type="password"

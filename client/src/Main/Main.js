@@ -42,6 +42,14 @@ export default class Main extends Component {
                     isAdmin: !Boolean(Number(response.type)),
                     loading: false
                 })
+            else{
+                toast.error(response.msg);
+                setTimeout(()=>{
+                    localStorage.clear(); 
+                    window.location.reload(1);
+                },2500);
+            }
+
         })
     }
 
@@ -86,6 +94,7 @@ export default class Main extends Component {
                         </>
                     }
                 </Router>
+                <Toaster toastOptions={{className: 'Toast_Class'}}/>
             </div>
         )
     }

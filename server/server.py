@@ -9,6 +9,7 @@ import hmac
 import hashlib
 from datetime import date
 import datetime
+import time
 
 
 
@@ -28,18 +29,20 @@ def login_api():
     #Check if user with credentials exsists
     if len(result)>0:
         user_id = (result[0]['id'])
+        designation = (result[0]['designation'])
         email = (result[0]['email'])
+        Time = time.time()
         hashedToken = hmac.new( b'am@xza', msg=str.encode(email), digestmod=hashlib.sha256)
         Token = hashedToken.hexdigest()
         sql = 'SELECT * FROM sessions WHERE uid = %s '
         result = fetch(sql,(user_id,)) 
         #Check if user already has session
         if len(result)>0:            
-            sql = '''UPDATE sessions SET token = %s WHERE uid = %s '''
-            result = update(sql,(Token, user_id,)) 
+            sql = '''UPDATE sessions SET token = %s, timestamp = %s WHERE uid = %s '''
+            result = update(sql,(Token, Time, user_id )) 
         else:                               
-            sql = '''INSERT INTO sessions (token,uid) VALUES(%s, %s)'''
-            result = insert(sql,(Token, user_id,))     
+            sql = '''INSERT INTO sessions (token, uid, designation, timestamp) VALUES(%s, %s, %s, %s)'''
+            result = insert(sql,(Token, user_id,designation,Time))     
         return {"success":"1", "token":Token}
     else:
         return {"success":"0", "token":"", "msg":"Invalid Credentials"} 
@@ -473,12 +476,14 @@ def get_timesheet():
     else:
         return {"success":"0", "msg":"Authorization Failed"} 
 
+
+
 #-------------Helper Functions ----------------#
 def verifyToken(token):    
     sql = '''SELECT * FROM sessions WHERE token = %s'''
     result = fetch(sql,(token,))    
-    result = toJson(result,["id","uid","token"])     
-    if len(result) > 0 and result[0]['uid'] == 0:
+    result = toJson(result,["id","uid","token","designation","timestamp"])     
+    if len(result) > 0 and result[0]['designation'] == "manager":
         return({"verified":True, "isAdmin":True, "uid": result[0]['uid']})
     elif len(result)>0:
         return({"verified":True, "isAdmin":False, "uid": result[0]['uid']})  
