@@ -86,6 +86,9 @@ export default class Reports extends React.Component {
                     'cancelable': true
                 });
                link.dispatchEvent(event);
+            })
+            .catch(err=>{
+                toast.error("Process Failed");
             });
 
     }
@@ -167,6 +170,7 @@ export default class Reports extends React.Component {
             <div>
                 {this.TopBar()}
                 {this.ReportFilters()}
+                <Toaster toastOptions={{className: 'Toast_Class'}}/>
             </div>
         )
     }
