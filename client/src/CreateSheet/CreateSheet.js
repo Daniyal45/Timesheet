@@ -13,8 +13,10 @@ export default class CreateSheet extends Component {
         super(props)
 
         this.state = {
-            projects: [],
+            sheetID:"",
             tasks: [],
+            projects: [],
+            editExistingSheet:0,
             date: new Date().toISOString().slice(0, 10)
         }
     }
@@ -73,8 +75,13 @@ export default class CreateSheet extends Component {
             if (parseInt(response.success)) {
                 this.setState({
                     date: response.data.date,
-                    projects: response.data.projects
+                    projects: response.data.projects,
+                    tasks: response.data.existingTaskSheet,
+                    editExistingSheet: response.data.editExistingSheet,
+                    sheetID: response.data.sheetId
                 });
+                if(response.data.existingTaskSheet.length)
+                    task_count = Math.max.apply(Math, response.data.existingTaskSheet.map(function(tsk) { return tsk.id; }));                   
             }
             else {
                 toast.error(response.msg);
@@ -87,9 +94,13 @@ export default class CreateSheet extends Component {
         let API = SERVER + '/newSheet'
         var formData = new FormData();
         var myHeaders = new Headers();
-        myHeaders.append("Authorization", localStorage.getItem('token'));
         formData.append('tasks', JSON.stringify(this.state.tasks));
         formData.append('date', this.state.date);
+        if(this.state.editExistingSheet){
+            API = SERVER + '/editSheet'
+            formData.append('sid', this.state.sheetID);
+        }     
+        myHeaders.append("Authorization", localStorage.getItem('token'));
         fetch(API, {
             method: 'POST',
             headers: myHeaders,

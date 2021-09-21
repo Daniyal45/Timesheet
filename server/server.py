@@ -292,6 +292,8 @@ def get_timesheets():
 def init_sheet():
     handlingHeaders()
     Auth = request.headers.get("Authorization")
+    EditExistingSheet = 0
+    SheetID = ""
     if(Auth):        
         if(verifyToken(Auth)["verified"]):
             sql = '''
@@ -304,7 +306,48 @@ def init_sheet():
             result = fetch(sql,()) 
             result = toJson(result,["id","name",])              
             today = str(date.today())
-            data = {"projects": result, "date":today }            
+            today_sql_format = date.today().strftime('%Y/%m/%d')
+            Uid =   verifyToken(Auth)["uid"]
+            ExistingTaskSheet=[]
+            sql = '''
+                        SELECT 
+                        id                               
+                        FROM sheet   
+                        WHERE uid = %s 
+                        AND   date = %s       
+                  '''
+            SheetID = fetch(sql,(Uid,today_sql_format))
+            SheetID = toJson(SheetID,["id",]) 
+            if len(SheetID) >0 :
+               SheetID = SheetID[0]['id']
+               EditExistingSheet = 1
+               sql = '''
+                        SELECT
+                            S.id AS sid ,
+                            S.date, 
+                            U.name AS employee, 
+                            T.name AS name, 
+                            T.comment, 
+                            T.hours, 
+                            T.status, 
+                            T.pid AS pid,
+                            T.id as id
+                        FROM 
+                        sheet AS S, users AS U, task AS T, projects AS P
+                        WHERE
+                            S.id = %s
+                        AND
+                            T.sid = S.id
+                        AND
+                            P.id = T.pid 
+                        AND 
+                            U.id = %s 
+                                                                           
+                '''               
+               TaskSheet = fetch(sql,(SheetID,Uid))
+               TaskSheet = toJson(TaskSheet,["sid","date","employee","name","comment","hours","status", "pid","id"])              
+               ExistingTaskSheet = TaskSheet
+            data = {"projects": result, "date":today, "existingTaskSheet": ExistingTaskSheet, "editExistingSheet": EditExistingSheet, "sheetId": SheetID }                        
             return ({"success":"1", "data":data})
         else:
             return {"success":"0", "msg":"Authorization Failed"}
@@ -348,6 +391,8 @@ def new_sheet():
                     sql = '''INSERT INTO task(name,sid,pid,hours,status,comment) VALUES '''+BulkInsertValues                    
                     insert(sql,())                
                     return {"success":"1", "msg":""}
+                else:
+                    return {"success":"0", "msg":"Sheet already exists for today"}               
             except Exception as E:
                 print("****ERROR****\n", E)
                 return {"success":"0", "msg":"Process failed, Error occurred at server end"}
@@ -356,6 +401,38 @@ def new_sheet():
             return {"success":"0", "msg":"Authorization Failed"}
     else:
         return {"success":"0", "msg":"Authorization Failed"}
+
+@route('/editSheet', method=['OPTIONS','POST'])
+def edit_sheet():
+    handlingHeaders()
+    Auth = request.headers.get("Authorization") 
+    if(Auth):
+        if(verifyToken(Auth)["verified"]):
+            try:
+                Date  = request.forms.get('date', "")
+                SheetID  = request.forms.get('sid', "")
+                Tasks  = request.forms.get('tasks', [])
+                Tasks = json.loads(Tasks)
+                #Convert Date to MySQL Format#
+                d = datetime.datetime.strptime(Date, '%Y-%m-%d')
+                d = datetime.date.strftime(d, "%Y/%m/%d")
+                Date = str(d)
+                sql = '''DELETE FROM task WHERE sid = %s'''
+                delete(sql,(str(SheetID),))
+                BulkInsertValues=""                
+                for task in Tasks:
+                    BulkInsertValues = BulkInsertValues+ '("'+task['name']+ '",' +str(SheetID)+ ',' +str(task['pid'])+ ',' +str(task['hours'])+ ',' +str(task['status'])+ ',"' +task['comment']+'."'+ '),'
+                BulkInsertValues =  BulkInsertValues[:-1]
+                sql = '''INSERT INTO task(name,sid,pid,hours,status,comment) VALUES '''+BulkInsertValues                    
+                insert(sql,()) 
+                return {"success":"1", "msg":""}
+            except Exception as E:
+                print("****ERROR****\n", E)
+                return {"success":"0", "msg":"Process failed, Error occurred at server end"}                
+        else:
+            return {"success":"0", "msg":"Authorization Failed"}
+    else:
+        return {"success":"0", "msg":"Authorization Failed"}            
 
 @route('/getTimesheet', method=['OPTIONS','POST'])  
 def get_timesheet():

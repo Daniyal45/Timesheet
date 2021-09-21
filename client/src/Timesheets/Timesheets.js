@@ -75,7 +75,7 @@ export default class Timesheets extends Component {
                                 customHeaders={{"total_tasks":"Total Tasks", "total_hours":"Hours Worked"}}
                                 dataStyle={{color:"white"}}
                                 showActions = {true}        
-                                actionTypes={["edit","view"]}
+                                actionTypes={["view"]}
                                 onRowEdit = {(event, row) => { 
                                     this._switchToEditScreen(event,row)
                                 }} 

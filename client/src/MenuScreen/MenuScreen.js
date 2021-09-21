@@ -50,7 +50,7 @@ export default class MenuScreen extends Component {
                     </li>
                     {!this.props.isAdmin ?
                         <li>
-                            <Link to="createSheet" replace> New Timesheet </Link>
+                            <Link to="createSheet" replace> Today's Timesheet </Link>
                         </li>
                         :
                         ""
