@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import {HashRouter as Router, Route, Link} from 'react-router-dom';
-import {AnalogTime} from 'react-clock-select';
 import toast, { Toaster } from 'react-hot-toast';
 import Table from 'react-table-lite';
 import { SERVER } from './../assets/scripts/constants';

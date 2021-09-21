@@ -1,15 +1,15 @@
 from bottle import Bottle, route, run, post, get, request, static_file, template, response
 from query import fetch, update, insert, delete
-import collections
-import requests
+import os
 import json
-import random
-import binascii
 import hmac
 import hashlib
 from datetime import date
 import datetime
 import time
+from io import BytesIO
+from bottle import route, response
+from pandas import ExcelWriter, DataFrame
 
 
 
@@ -477,6 +477,57 @@ def get_timesheet():
         return {"success":"0", "msg":"Authorization Failed"} 
 
 
+@route('/generateReport', method=['OPTIONS','POST'])  
+def generate_report():
+    handlingHeaders()
+    Auth = request.headers.get("Authorization")
+    if(Auth):
+        if(verifyToken(Auth)["verified"] and verifyToken(Auth)["isAdmin"]):  
+            Project  = request.forms.get('project', None)
+            User  = request.forms.get('user', None)
+            Start_Date  = request.forms.get('start_date', None)
+            End_Date = request.forms.get('end_date', None) 
+            Filters = ""
+            if int(User) > -3:
+                Filters = Filters + " AND S.uid = " + str(User)
+            if int(Project) > -3:
+                Filters = Filters + " AND T.pid = " + str(Project)                        
+            if len(End_Date)>0:
+                ed = datetime.datetime.strptime(End_Date, '%Y-%m-%d')
+                End_Date = datetime.date.strftime(ed, "%Y/%m/%d")
+            if len(Start_Date)>0:
+                sd = datetime.datetime.strptime(Start_Date, '%Y-%m-%d')
+                Start_Date = datetime.date.strftime(sd, "%Y/%m/%d")
+            if len(Start_Date)>0 and len(End_Date)>0:
+                Filters = Filters + " AND S.date BETWEEN \"" + Start_Date + "\" AND \"" + End_Date+"\""
+            sql = '''
+                        SELECT
+                        S.date AS Date,
+                        P.name AS Project,
+                        U.name AS Employee,
+                        T.name AS Task,
+                        T.hours AS Hours
+                        FROM
+                        sheet AS S, task AS T, users AS U, projects AS P
+                        WHERE
+                        T.sid = S.id
+                        AND
+                        S.uid = U.id
+                        AND
+                        T.pid = P.id
+                ''' + Filters  
+            result = fetch(sql,())    
+            result = toJson(result,["Date","Project","Employee","Task","Hours"])                             
+            report = get_xlsx(result)
+            response.contet_type = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+            response.add_header('Content-Disposition', 'attachment; filename="Report.xlsx"')
+            return report.getvalue()
+
+            return {"success":"1", "msg":""}    
+        else:
+            return {"success":"0", "msg":"Authorization Failed"}
+    else:
+        return {"success":"0", "msg":"Authorization Failed"}   
 
 #-------------Helper Functions ----------------#
 def verifyToken(token):    
@@ -505,6 +556,20 @@ def handlingHeaders():
     response.set_header("Access-Control-Allow-Methods", "OPTIONS, GET, POST")
     response.set_header("Access-Control-Allow-Headers","Origin, X-Requested-With, Content-Type, Accept, Authorization")
 
+def get_xlsx(jsonData):
+        try:
+            if os.path.exists("/reports/DATAFILE.xlsx"):
+                os.remove("/reports/DATAFILE.xlsx")
+        except Exception as E:
+                print("****ERROR****\n", E)                
+        file = BytesIO()
+        df_json = DataFrame.from_dict(jsonData)
+        df_json.index += 1
+        writer = ExcelWriter(file, engine='xlsxwriter')
+        df_json.to_excel(writer, sheet_name='Report')
+        df_json.to_excel('/reports/DATAFILE.xlsx')
+        writer.save()
+        return file
 
 
 #------------- Importing Resources For HTML ----------------#

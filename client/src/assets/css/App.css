@@ -1,6 +1,7 @@
 
 body{
   margin:0;
+  overflow: auto;
 }
 
 .Menu{
@@ -53,6 +54,9 @@ body{
 }
 .mgn-lf{
   margin-left: 10px;
+}
+.mgn-rt{
+  margin-right: 5%;
 }
 
 .custom-input-form{
@@ -150,6 +154,33 @@ body{
   border: 1px solid rgba(0,0,0,0.3);
   border-radius: 4px;
   box-shadow: inset 0 -5px 45px rgba(100,100,100,0.2), 0 1px 1px rgba(255,255,255,0.2);
+}
+
+.filter-card{
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%,-50%);
+    min-width: 350px;
+}
+
+.date-range-div{
+  display: flex;
+  margin-top: 5px;
+}
+.filter-card label{
+  margin: 0 5%;
+}
+
+.filter-card label::after{
+  content: " ";
+  line-height: 34px;  
+}
+
+.report-generate-btn{
+  left: 50%;
+  position: absolute;  
+  transform: translateX(-50%);
 }
 
 .delete{
