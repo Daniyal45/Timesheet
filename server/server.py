@@ -521,9 +521,7 @@ def generate_report():
             report = get_xlsx(result)
             response.contet_type = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
             response.add_header('Content-Disposition', 'attachment; filename="Report.xlsx"')
-            return report.getvalue()
-
-            return {"success":"1", "msg":""}    
+            return report.getvalue()                
         else:
             return {"success":"0", "msg":"Authorization Failed"}
     else:
@@ -558,8 +556,8 @@ def handlingHeaders():
 
 def get_xlsx(jsonData):
         try:
-            if os.path.exists("/reports/DATAFILE.xlsx"):
-                os.remove("/reports/DATAFILE.xlsx")
+            if os.path.exists("./reports/DATAFILE.xlsx"):
+                os.remove("./reports/DATAFILE.xlsx")
         except Exception as E:
                 print("****ERROR****\n", E)                
         file = BytesIO()
@@ -567,7 +565,7 @@ def get_xlsx(jsonData):
         df_json.index += 1
         writer = ExcelWriter(file, engine='xlsxwriter')
         df_json.to_excel(writer, sheet_name='Report')
-        df_json.to_excel('/reports/DATAFILE.xlsx')
+        df_json.to_excel('./reports/DATAFILE.xlsx')
         writer.save()
         return file
 
