@@ -63,9 +63,19 @@ export default class AddUser extends Component {
         })
     }
 
-    handleInput(e) {
-        this.setState({ [e.target.name]: e.target.value });
+    handleInput(e){        
+        if(e.target.name == "name"){
+            let nameString =  e.target.value.replace(/[^a-zA-Z ]+/g,"");          
+            this.setState({ [e.target.name] : nameString });
+        }
+        else if(e.target.name == "contact"){
+            let contactString =  e.target.value.replace(/[^0-9\-]+/g,"");          
+            this.setState({ [e.target.name] : contactString });
+        }
+        else
+            this.setState({ [e.target.name] : e.target.value });
     }
+
 
     submitUser(e) {
         e.preventDefault();
@@ -123,6 +133,7 @@ export default class AddUser extends Component {
                             placeholder="User name..."
                             value={this.state.name}
                             required={true}
+                            maxLength={20}
                         />
                         <input
                             id="email"
@@ -131,6 +142,7 @@ export default class AddUser extends Component {
                             placeholder="User email..."
                             value={this.state.email}
                             required={true}
+                            maxLength={40}
                         />
                         <input
                             id="contact"
@@ -138,6 +150,7 @@ export default class AddUser extends Component {
                             name="contact"
                             placeholder="User contact..."
                             value={this.state.contact}
+                            maxLength={13}
                         />
                         <select
                             id="designation"

@@ -77,6 +77,7 @@ export default class AddProject extends Component {
                             placeholder="Project name..."
                             value={this.state.name}
                             required={true}
+                            maxLength={20}
                         />
                         <input
                             id="start_date"

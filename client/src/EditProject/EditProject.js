@@ -124,6 +124,7 @@ export default class EditProject extends Component {
                             placeholder="Project name..."
                             value={this.state.name}
                             required={true}
+                            maxLength={20}
                         />
                         <input
                             id="start_date"
