@@ -12,6 +12,11 @@ from bottle import route, response
 from pandas import ExcelWriter, DataFrame
 
 
+@route('/', method='GET')
+def home():
+    response.set_header("Access-Control-Allow-Origin", "*")
+    response.set_header("Access-Control-Allow-Methods", "GET, POST")
+    return template('./index')
 
 
 ### API SECTION ###
@@ -531,7 +536,11 @@ def generate_report():
 def verifyToken(token):    
     sql = '''SELECT * FROM sessions WHERE token = %s'''
     result = fetch(sql,(token,))    
-    result = toJson(result,["id","uid","token","designation","timestamp"])     
+    result = toJson(result,["id","uid","token","designation","timestamp"]) 
+    if( time.time() - float(result[0]['timestamp'])  > 28800):
+        sql = '''DELETE FROM sessions WHERE token = %s'''
+        delete(sql,(result[0]['token']))
+        return({"verified":False, "isAdmin":False, "uid": None})
     if len(result) > 0 and result[0]['designation'] == "manager":
         return({"verified":True, "isAdmin":True, "uid": result[0]['uid']})
     elif len(result)>0:
