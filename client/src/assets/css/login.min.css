@@ -62,5 +62,9 @@ body {
 }
 
 .login img{
+  left:50%;
   margin-bottom: 5px;
+  position: relative;
+  text-align: center;
+  transform: translate(-50%,-50%);
 }
