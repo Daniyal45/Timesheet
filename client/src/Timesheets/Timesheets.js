@@ -12,6 +12,7 @@ export default class Timesheets extends Component {
         this.state = {
              sheets:[],
              page:1,
+             totalPages:1
         }
     }
     
@@ -27,6 +28,13 @@ export default class Timesheets extends Component {
         window.location.hash = "#/timesheet/"+row.id;
     }
 
+    _handlePageChange(page){
+        if(page !== this.state.page)
+            this.setState({page},
+                ()=>{ this.getSheets(); }
+            )
+    }
+
     getSheets(){
         let API = SERVER + '/getTimesheets' ;
         var formData = new FormData();
@@ -39,7 +47,10 @@ export default class Timesheets extends Component {
             body: formData            
         }).then(res => res.json()).then(response => {
             if(parseInt(response.success)){
-                this.setState({sheets: response.data});
+                this.setState({
+                    sheets: response.data,
+                    totalPages: response.total_pages
+                });
             }
             else{
                 toast.error(response.msg);
@@ -75,12 +86,18 @@ export default class Timesheets extends Component {
                                 dataStyle={{color:"white"}}
                                 showActions = {true}        
                                 actionTypes={["view"]}
+                                showPagination={true}
+                                totalPages={this.state.totalPages} 
+                                currentPage={this.state.page}
                                 onRowEdit = {(event, row) => { 
                                     this._switchToEditScreen(event,row)
                                 }} 
                                 onRowView = {(event, row) => { 
                                     this._switchToViewScreen(event,row)
                                 }} 
+                                onPaginate={(currentPage)=>{
+                                   this._handlePageChange(currentPage)
+                                }}
                                 headerStyle={{background:'#4a77d4',textShadow: "0 -1px 0 rgba(0, 0, 0, 0.25)", color: "#ffffff"}}
                             />
                         </div>

@@ -7,6 +7,7 @@ import hashlib
 from datetime import date
 import datetime
 import time
+import math
 from io import BytesIO
 from bottle import route, response
 from pandas import ExcelWriter, DataFrame
@@ -43,8 +44,8 @@ def login_api():
         result = fetch(sql,(user_id,)) 
         #Check if user already has session
         if len(result)>0:            
-            sql = '''UPDATE sessions SET token = %s, timestamp = %s WHERE uid = %s '''
-            result = update(sql,(Token, Time, user_id )) 
+            sql = '''UPDATE sessions SET token = %s, timestamp = %s, designation = %s WHERE uid = %s '''
+            result = update(sql,(Token, Time, designation, user_id )) 
         else:                               
             sql = '''INSERT INTO sessions (token, uid, designation, timestamp) VALUES(%s, %s, %s, %s)'''
             result = insert(sql,(Token, user_id,designation,Time))     
@@ -59,9 +60,11 @@ def permission_get():
     Auth = request.headers.get("Authorization")
     if(Auth):        
         if(verifyToken(Auth)["verified"] and verifyToken(Auth)["isAdmin"]):
-            return {"success":"1", "type":"0"}  #Type 0 means admin privileges
+            Name = getLoggedInUserName(Auth)
+            return {"success":"1", "type":"0", "user": Name }  #Type 0 means admin privileges
         elif(verifyToken(Auth)["verified"]):
-            return {"success":"1", "type":"1"}  #Type 1 means user privileges 
+            Name = getLoggedInUserName(Auth)
+            return {"success":"1", "type":"1", "user": Name }  #Type 1 means user privileges 
         else:    
             return {"success":"0", "msg":"Session expired"}
     else:
@@ -261,18 +264,44 @@ def get_timesheets():
     Auth = request.headers.get("Authorization")
     if(Auth):        
         if(verifyToken(Auth)["verified"]):
+            PerPage = 3
             Page = request.forms.get('page', None) 
-            Page = (int(Page)-1)*30
+            Page = (int(Page)-1)*PerPage            
             User_id_condition = ''' '''
             if verifyToken(Auth)["uid"] is not None and verifyToken(Auth)["uid"]>0:
-                User_id_condition = " AND S.uid = " +  str(verifyToken(Auth)["uid"])  + " "                   
+                User_id_condition = " AND S.uid = " +  str(verifyToken(Auth)["uid"])  + " "   
             sql = '''
                         SELECT 
                             S.id as id,
                             U.name AS employee, 
                             S.date as date, 
                             COUNT(T.id) as total_tasks, 
-                            SUM(T.hours)as total_hours
+                            SUM(T.hours)as total_hours,
+                            COUNT(S.id)as total_sheets
+                        FROM 
+                            users AS U,  sheet AS S, task AS T
+                        WHERE
+                            U.id = S.uid
+                        AND
+                            T.sid = S.id 
+                        ''' + User_id_condition + '''    
+                        GROUP BY 
+                            S.id , S.date   
+                        ORDER BY
+                            S.date DESC                                                
+                    '''               
+                     
+            result = fetch(sql,())
+            Total_Pages = math.ceil(len(result)/PerPage)       
+
+            sql = '''
+                        SELECT 
+                            S.id as id,
+                            U.name AS employee, 
+                            S.date as date, 
+                            COUNT(T.id) as total_tasks, 
+                            SUM(T.hours)as total_hours,
+                            COUNT(S.id)as total_sheets
                         FROM 
                             users AS U,  sheet AS S, task AS T
                         WHERE
@@ -284,13 +313,13 @@ def get_timesheets():
                             S.id , S.date   
                         ORDER BY
                             S.date DESC 
-                        LIMIT   30 
+                        LIMIT ''' + str(PerPage) + ''' 
                         OFFSET %s  
                     '''               
                      
             result = fetch(sql,(Page,))         
-            result = toJson(result,["id","employee","date","total_tasks","total_hours"])             
-            return json.dumps({"success":"1", "data":result})
+            result = toJson(result,["id","employee","date","total_tasks","total_hours","total_sheets"])             
+            return json.dumps({"success":"1", "data":result, "total_pages":Total_Pages})
         else:
             return {"success":"0", "msg":"Authorization Failed"}
     else:
@@ -547,6 +576,15 @@ def verifyToken(token):
         return({"verified":True, "isAdmin":False, "uid": result[0]['uid']})  
     else :
         return({"verified":False, "isAdmin":False, "uid": None})       
+
+def getLoggedInUserName(token):
+        sql = '''SELECT u.name as name FROM users as u, sessions as ses WHERE ses.token = %s AND ses.uid = u.id '''
+        result = fetch(sql,(token,))    
+        result = toJson(result,["name",]) 
+        if len(result) > 0:
+            return result[0]
+        else:
+            return " "
 
 def toJson(result,keys):
     objects_list = []

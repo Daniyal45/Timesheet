@@ -25,7 +25,8 @@ export default class Main extends Component {
         super(props)    
         this.state = { 
             isAdmin:false,
-            loading:true,      
+            loading:true,    
+            user_name: "",  
         }
     }
    
@@ -41,6 +42,7 @@ export default class Main extends Component {
             if(parseInt(response.success))
                 this.setState({
                     isAdmin: !Boolean(Number(response.type)),
+                    user_name : response.user.name,
                     loading: false
                 })
             else{
@@ -71,7 +73,7 @@ export default class Main extends Component {
                         :
                         <>
                             <Route exact path="/"
-                                render={(props) => (<MenuScreen isAdmin={this.state.isAdmin} />)}
+                                render={(props) => (<MenuScreen isAdmin={this.state.isAdmin} user={this.state.user_name} />)}
                             />
                             
                             <Route exact path="/timesheets" 

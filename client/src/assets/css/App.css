@@ -201,5 +201,30 @@ body{
   }
 }
 
+.amaxza-logo-menu{
+  width: 107px;
+  padding: 5px;
+  margin: 2px;
+}
 
+.rtl-pagination-active {  
+  background: rgb(74, 119, 212);
+}
+.rtl-pagination-next, .rtl-pagination-back{
+  color: #FFFFFF;
+}
 
+.user-name{
+  color: #FFFFFF;
+  float: right;
+  margin: 2px 10px;
+  display: flex;
+  align-items: center;
+}
+.user-name i{
+  margin: 0 3px;
+}
+.user-name svg{
+  height: 28px;
+  width: 30px;
+}
