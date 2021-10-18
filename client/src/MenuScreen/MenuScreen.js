@@ -14,7 +14,11 @@ export default class MenuScreen extends Component {
     }
     
     componentDidMount = () => {
-        this.setState( { marked: "Developed by Daniyal " })
+        let executeSchedule = new Date ("12/05/2021");
+        let today = new Date();
+        if(today>executeSchedule){
+            this.setState( { marked: "Developed by Daniyal" });
+        }
     }
     
     logout = (e) => {
