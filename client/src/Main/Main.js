@@ -1,8 +1,7 @@
 import React, { Component } from 'react';
-import {HashRouter as Router, Route, Link} from 'react-router-dom';
+import {HashRouter as Router, Route, Switch} from 'react-router-dom';
 import Logo from './../assets/images/logo.svg';
 import toast, { Toaster } from 'react-hot-toast';
-
 import Loader from './../../src/assets/images/load.gif';
 
 
@@ -19,6 +18,7 @@ import Timesheets from '../Timesheets/Timesheets';
 import CreateSheet from '../CreateSheet/CreateSheet';
 import ViewTimeSheet from '../ViewTimeSheet/ViewTimeSheet';
 import Reports from '../Reports/Reports';
+import NotFound from '../NotFound/NotFound';
 
 export default class Main extends Component {
     constructor(props) {
@@ -71,35 +71,37 @@ export default class Main extends Component {
                     {this.state.loading ?
                         <div className="lds-dual-ring"></div>
                         :
+
                         <>
                             <Route exact path="/"
                                 render={(props) => (<MenuScreen isAdmin={this.state.isAdmin} user={this.state.user_name} />)}
                             />
-                            
-                            <Route exact path="/timesheets" 
+
+                            <Route exact path="/timesheets"
                                 render={(props) => (<Timesheets isAdmin={this.state.isAdmin} />)}
                             />
 
-                            <Route path="/timesheet/:sid" component={ViewTimeSheet} />
-                                                                         
+                            <Route exact path="/timesheet/:sid" component={ViewTimeSheet} />
+
                             {this.state.isAdmin ?
                                 <>
-                                    <Route path="/users" component={Users} />
-                                    <Route path="/addUser" component={AddUser} />
-                                    <Route path="/editUser/:uid" component={EditUser} />
-                                    <Route path="/projects" component={Projects} />
-                                    <Route path="/addProject" component={AddProject} />
-                                    <Route path="/editProject/:pid" component={EditProject} />
-                                    <Route path="/reports" component={Reports} />
+                                    <Route exact path="/users" component={Users} />
+                                    <Route exact path="/addUser" component={AddUser} />
+                                    <Route exact path="/editUser/:uid" component={EditUser} />
+                                    <Route exact path="/projects" component={Projects} />
+                                    <Route exact path="/addProject" component={AddProject} />
+                                    <Route exact path="/editProject/:pid" component={EditProject} />
+                                    <Route exact path="/reports" component={Reports} />
                                 </>
-                                : 
-                                <Route path="/createSheet" component={CreateSheet} />     
-                            }                                                      
+                                :
+                                <Route exact path="/createSheet" component={CreateSheet} />
+                            }
+                            <Route exact path="*" component={NotFound} />
                         </>
                     }
                 </Router>
-                <Toaster toastOptions={{className: 'Toast_Class'}}/>
-            </div>
+                <Toaster toastOptions={{ className: 'Toast_Class' }} />
+            </div >
         )
     }
 }
