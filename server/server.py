@@ -264,7 +264,7 @@ def get_timesheets():
     Auth = request.headers.get("Authorization")
     if(Auth):        
         if(verifyToken(Auth)["verified"]):
-            PerPage = 3
+            PerPage = 30
             Page = request.forms.get('page', None) 
             Page = (int(Page)-1)*PerPage            
             User_id_condition = ''' '''

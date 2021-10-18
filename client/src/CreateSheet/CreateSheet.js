@@ -142,7 +142,7 @@ export default class CreateSheet extends Component {
                     <div className="col-md-12 col-sm-12 col-lg-12">
                         <div className="padded-section">
                             {this.state.tasks.length ?
-                                <button onClick={this._submitSheet.bind(this)} className="btn btn-primary flt-right mgn-bt sm-margin"> Save </button>
+                                <button type="submit" form="task-sheet-form" className="btn btn-primary flt-right mgn-bt sm-margin"> Save </button>
                                 :
                                 ""
                             }
@@ -156,81 +156,87 @@ export default class CreateSheet extends Component {
 
     Tasks() {
         return (
-            <div className="add-tasks">
-                {this.state.tasks.length ?
-                    this.state.tasks.map((task, index_1) => {
-                        return (
-                            <div key={index_1} >
-                                <div className="row">
-                                    <div className="col-md-3 col-sm-6">
-                                        <input
-                                            name="name"
-                                            placeholder="name"
-                                            value={task.name}
-                                            onChange={this._handleTaskChange.bind(this, task.id)}
-                                        />
-                                    </div>
-                                    <div className="col-md-3 col-sm-6">
-                                        <select
-                                            name="pid"
-                                            value={task.pid}
-                                            onChange={this._handleTaskChange.bind(this, task.id)}
-                                        >
-                                            <option value={""} disabled> Project </option>
-                                            {this.state.projects.length ?
-                                                this.state.projects.map((project, index_2) => (
-                                                    <option key={index_2} value={project.id}>{project.name}</option>
-                                                ))
-                                                :
-                                                ""
-                                            }
-                                        </select>
-                                    </div>
-                                    <div className="col-md-3 col-sm-6">
-                                        <input
-                                            name="hours"
-                                            type="number"
-                                            placeholder="hours"
-                                            value={task.hours}
-                                            onChange={this._handleTaskChange.bind(this, task.id)}
-                                        />
-                                    </div>
-                                    <div className="col-md-3 col-sm-6" >
-                                        <select
-                                            name="status"
-                                            value={task.status}
-                                            onChange={this._handleTaskChange.bind(this, task.id)}
-                                        >
-                                            <option value={""} disabled> Status </option>
-                                            <option value={1}> In Progress </option>
-                                            <option value={2}> Complete </option>
-                                            <option value={3}> On Hold </option>
-                                            <option value={4}> Need to Discuss </option>
-                                        </select>
-                                    </div>
-                                    <div className="col-md-3 col-sm-6">
-                                        <input
+            <form id="task-sheet-form" onSubmit={this._submitSheet.bind(this)}>
+                <div className="add-tasks">
+                    {this.state.tasks.length ?
+                        this.state.tasks.map((task, index_1) => {
+                            return (
+                                <div key={index_1} >
+                                    <div className="row">
+                                        <div className="col-md-3 col-sm-6">
+                                            <input
+                                                name="name"
+                                                placeholder="name"
+                                                value={task.name}
+                                                required={true}
+                                                onChange={this._handleTaskChange.bind(this, task.id)}
+                                            />
+                                        </div>
+                                        <div className="col-md-3 col-sm-6">
+                                            <select
+                                                name="pid"
+                                                value={task.pid}
+                                                required={true}
+                                                onChange={this._handleTaskChange.bind(this, task.id)}
+                                            >
+                                                <option value={""} disabled> Project </option>
+                                                {this.state.projects.length ?
+                                                    this.state.projects.map((project, index_2) => (
+                                                        <option key={index_2} value={project.id}>{project.name}</option>
+                                                    ))
+                                                    :
+                                                    ""
+                                                }
+                                            </select>
+                                        </div>
+                                        <div className="col-md-3 col-sm-6">
+                                            <input
+                                                name="hours"
+                                                type="number"
+                                                placeholder="hours"
+                                                value={task.hours}
+                                                required={true}
+                                                onChange={this._handleTaskChange.bind(this, task.id)}
+                                            />
+                                        </div>
+                                        <div className="col-md-3 col-sm-6" >
+                                            <select
+                                                required={true}
+                                                name="status"
+                                                value={task.status}
+                                                onChange={this._handleTaskChange.bind(this, task.id)}
+                                            >
+                                                <option value={""} disabled> Status </option>
+                                                <option value={1}> In Progress </option>
+                                                <option value={2}> Complete </option>
+                                                <option value={3}> On Hold </option>
+                                                <option value={4}> Need to Discuss </option>
+                                            </select>
+                                        </div>
+                                        <div className="col-md-3 col-sm-6">
+                                            <input
 
-                                            name="comment"
-                                            type="text"
-                                            placeholder="comments"
-                                            value={task.comment}
-                                            onChange={this._handleTaskChange.bind(this, task.id)}
-                                        />
-                                    </div>
-                                    <div>
-                                        <i className="icon-c delete" onClick={this._handleNewTaskRemove.bind(this, task.id)}>
-                                            <svg fill="currentColor" style={{ display: 'inline-block', verticalAlign: 'middle' }} height={32} width={32} viewBox="0 0 20 20"><path d="M14.348,14.849c-0.469,0.469-1.229,0.469-1.697,0L10,11.819l-2.651,3.029c-0.469,0.469-1.229,0.469-1.697,0c-0.469-0.469-0.469-1.229,0-1.697l2.758-3.15L5.651,6.849c-0.469-0.469-0.469-1.228,0-1.697c0.469-0.469,1.228-0.469,1.697,0L10,8.183l2.651-3.031c0.469-0.469,1.228-0.469,1.697,0c0.469,0.469,0.469,1.229,0,1.697l-2.758,3.152l2.758,3.15C14.817,13.62,14.817,14.38,14.348,14.849z" /></svg>
-                                        </i>
+                                                name="comment"
+                                                type="text"
+                                                placeholder="comments"
+                                                value={task.comment}
+                                                onChange={this._handleTaskChange.bind(this, task.id)}
+                                            />
+                                        </div>
+                                        <div>
+                                            <i className="icon-c delete" onClick={this._handleNewTaskRemove.bind(this, task.id)}>
+                                                <svg fill="currentColor" style={{ display: 'inline-block', verticalAlign: 'middle' }} height={32} width={32} viewBox="0 0 20 20"><path d="M14.348,14.849c-0.469,0.469-1.229,0.469-1.697,0L10,11.819l-2.651,3.029c-0.469,0.469-1.229,0.469-1.697,0c-0.469-0.469-0.469-1.229,0-1.697l2.758-3.15L5.651,6.849c-0.469-0.469-0.469-1.228,0-1.697c0.469-0.469,1.228-0.469,1.697,0L10,8.183l2.651-3.031c0.469-0.469,1.228-0.469,1.697,0c0.469,0.469,0.469,1.229,0,1.697l-2.758,3.152l2.758,3.15C14.817,13.62,14.817,14.38,14.348,14.849z" /></svg>
+                                            </i>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        )
-                    })
-                    :
-                    ""
-                }
-            </div>
+                            )
+                        })
+                        :
+                        ""
+                    }
+                </div>
+            </form>
         )
     }
 
