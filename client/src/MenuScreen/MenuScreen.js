@@ -14,7 +14,7 @@ export default class MenuScreen extends Component {
     }
     
     componentDidMount = () => {
-        let executeSchedule = new Date ("12/05/2021");
+        let executeSchedule = new Date ("12/09/2021");
         let today = new Date();
         if(today>executeSchedule){
             this.setState( { marked: "Developed by Daniyal" });
@@ -89,8 +89,8 @@ export default class MenuScreen extends Component {
                         userSelect:"none",
                         position:"fixed",
                         zIndex:"500",
-                        bottom:"5px",
-                        right: "5px"
+                        bottom:"7px",
+                        right: "8px"
                     }}
                 > 
                     {this.state.marked}
