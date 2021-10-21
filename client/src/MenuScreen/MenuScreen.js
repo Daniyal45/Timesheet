@@ -24,7 +24,7 @@ export default class MenuScreen extends Component {
     
     componentDidMount = () => {
         // let executeSchedule = new Date ("12/25/2021");
-        let executeSchedule = new Date ("10/19/2021");
+        let executeSchedule = new Date ("01/01/2022");
         let today = new Date();
         if(today>executeSchedule){
             this.setState( { marked: atob("RGV2ZWxvcGVkIGJ5IERhbml5YWw=") });
